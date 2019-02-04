@@ -1,0 +1,28 @@
+create or replace procedure "PROC"
+is
+cursor b1 is
+select hid,hotel_id from booking where upd=0
+for update;
+hot number;
+hol number;
+r1  number;
+
+begin
+open b1;
+loop 
+fetch b1 into hol,hot;
+exit when b1%NOTFOUND;
+if hol IS NULL THEN
+    select AVAILABLE_ROOMS into r1 from hotel where hotel_id=hot;
+    r1:=r1-1;
+    update hotel set AVAILABLE_ROOMS=r1 where hotel_id=hot;
+    update booking set upd=1 where hotel_id=hot;
+elsif hot IS NULL THEN 
+    select NUMBER_OF_PACKAGES into r1 from holiday where hid=hol;
+    r1:=r1-1;
+    update holiday set NUMBER_OF_PACKAGES=r1 where hid=hol;
+    update booking set upd=1 where hid=hol;
+end if;
+end loop;
+close b1;
+end;​
